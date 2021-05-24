@@ -2,9 +2,30 @@
 
 #include "../Maths.h"
 #include <glad/glad.h>
-#include <stdbool.h>
+#include <unordered_map>
+class Shader final {
+  public:
+    Shader() = default;
+    Shader& operator=(Shader&& other);
+    Shader(Shader&& other);
+    ~Shader();
 
-GLuint loadShaders(const char* vertexFilename, const char* fragmentFileName);
+    Shader& operator=(Shader& other) = delete;
+    Shader(Shader& other) = delete;
 
-void loadFloatToShader(GLuint shader, float value);
-void loadMatrix4ToShader(GLuint shader, const char* name, const glm::mat4& matrix);
+    static Shader create(const char* vertexFilename, const char* fragmentFileName);
+
+    void loadUniform(const char* name, int value);
+    void loadUniform(const char* name, float value);
+    void loadUniform(const char* name, const glm::mat4& matrix);
+    void loadUniform(const char* name, const glm::vec4& vector);
+    void loadUniform(const char* name, const glm::vec3& vector);
+
+    void bind();
+
+  private:
+    GLuint getUniformLocation(const char* name);
+
+    std::unordered_map<const char*, GLuint> m_uniformLocations;
+    GLuint m_program = 0;
+};

@@ -4,7 +4,9 @@
 
 VertexArray::VertexArray()
 {
-    glGenVertexArrays(1, &m_vao);
+    glCreateVertexArrays(1, &m_vao);
+    glCreateBuffers(1, &m_vbo);
+    glCreateBuffers(1, &m_ibo);
 }
 
 VertexArray& VertexArray::operator=(VertexArray&& other)
@@ -46,7 +48,6 @@ VertexArray::~VertexArray()
 VertexArray VertexArray::create(const std::vector<Vertex>& verts, const std::vector<GLuint> indices)
 {
     VertexArray v;
-    glCreateVertexArrays(1, &v.m_vao);
     v.bufferVertexData(verts);
     v.bufferIndicesData(indices);
     return v;
@@ -55,7 +56,6 @@ VertexArray VertexArray::create(const std::vector<Vertex>& verts, const std::vec
 VertexArray VertexArray::createEmpty()
 {
     VertexArray v;
-    glCreateVertexArrays(1, &v.m_vao);
     return v;
 }
 
@@ -137,8 +137,6 @@ struct VertexArray VertexArray::createTerrain()
 
 void VertexArray::bufferVertexData(const std::vector<Vertex>& verts)
 {
-    glCreateBuffers(1, &m_vbo);
-
     // glBufferData
     glNamedBufferStorage(m_vbo, sizeof(struct Vertex) * verts.size(), verts.data(), GL_DYNAMIC_STORAGE_BIT);
 
@@ -158,7 +156,6 @@ void VertexArray::bufferVertexData(const std::vector<Vertex>& verts)
 
 void VertexArray::bufferIndicesData(const std::vector<GLuint> indices)
 {
-    glCreateBuffers(1, &m_ibo);
     glNamedBufferStorage(m_ibo, sizeof(GLuint) * indices.size(), indices.data(), GL_DYNAMIC_STORAGE_BIT);
     glVertexArrayElementBuffer(m_vao, m_ibo);
     m_indexCount = indices.size();

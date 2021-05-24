@@ -1,10 +1,11 @@
 #include "Shader.h"
 
 #include "../Utility.h"
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <glm/gtc/type_ptr.hpp>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static const char* getShaderString(GLenum shaderType)
 {
@@ -46,8 +47,29 @@ static bool compileShader(GLuint* shaderOut, const char* fileName, GLenum shader
     return true;
 }
 
-GLuint loadShaders(const char* vertexFilename, const char* fragmentFileName)
+Shader& Shader::operator=(Shader&& other)
 {
+    m_program = other.m_program;
+    other.m_program = 0;
+    return *this;
+}
+
+Shader::Shader(Shader&& other)
+    : m_program{other.m_program}
+{
+    other.m_program = 0;
+}
+
+Shader::~Shader()
+{
+    if (m_program != 0) {
+        glDeleteProgram(m_program);
+    }
+}
+
+Shader Shader::create(const char* vertexFilename, const char* fragmentFileName)
+{
+
     char vertfullFileName[128] = "Data/Shaders/";
     char fragfullFileName[128] = "Data/Shaders/";
     strcat(vertfullFileName, vertexFilename);
@@ -63,24 +85,68 @@ GLuint loadShaders(const char* vertexFilename, const char* fragmentFileName)
         exit(1);
     }
 
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
+    Shader shader;
+    shader.m_program = glCreateProgram();
+    glAttachShader(shader.m_program, vertexShader);
+    glAttachShader(shader.m_program, fragmentShader);
+    glLinkProgram(shader.m_program);
 
-    glBindAttribLocation(program, 0, "inPosition");
+    glBindAttribLocation(shader.m_program, 0, "inPosition");
 
     GLint status;
-    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    glGetProgramiv(shader.m_program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE) {
         char buff[1024];
-        glGetShaderInfoLog(program, 1024, NULL, buff);
+        glGetShaderInfoLog(shader.m_program, 1024, NULL, buff);
         fprintf(stderr, "Failed to link shader programs: %s\n", buff);
         exit(1);
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    return program;
+
+    return shader;
+}
+
+void Shader::bind()
+{
+    assert(m_program != 0);
+    glUseProgram(m_program);
+}
+
+GLuint Shader::getUniformLocation(const char* name)
+{
+    auto itr = m_uniformLocations.find(name);
+    if (itr == m_uniformLocations.cend()) {
+        GLint location = glGetUniformLocation(m_program, name);
+        assert(location != -1);
+        m_uniformLocations.emplace(name, location);
+    }
+    return m_uniformLocations[name];
+}
+
+void Shader::loadUniform(const char* name, int value)
+{
+    glUniform1i(getUniformLocation(name), value);
+}
+
+void Shader::loadUniform(const char* name, float value)
+{
+    glUniform1f(getUniformLocation(name), value);
+}
+
+void Shader::loadUniform(const char* name, const glm::mat4& matrix)
+{
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::loadUniform(const char* name, const glm::vec4& vector)
+{
+    glUniform4fv(getUniformLocation(name), 1, glm::value_ptr(vector));
+}
+
+void Shader::loadUniform(const char* name, const glm::vec3& vector)
+{
+    glUniform3fv(getUniformLocation(name), 1, glm::value_ptr(vector));
 }
 
 void loadMatrix4ToShader(GLuint shader, const char* name, const glm::mat4& matrix)

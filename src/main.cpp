@@ -33,8 +33,10 @@ int main(void)
     auto quad = VertexArray::create(vertices, indices);
     auto screen = VertexArray::createEmpty();
 
-    GLuint shader = loadShaders("MinVertex.glsl", "MinFragment.glsl");
-    GLuint frameBufferShader = loadShaders("FramebufferVertex.glsl", "FramebufferFragment.glsl");
+    auto shader = Shader::create("MinVertex.glsl", "MinFragment.glsl");
+    auto frameBufferShader = Shader::create("FramebufferVertex.glsl", "FramebufferFragment.glsl");
+
+
     GLuint texture = loadTexture("opengl_logo.png");
 
     struct Framebuffer framebuffer = createFramebuffer(WIDTH, HEIGHT);
@@ -87,28 +89,30 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Use the scene shaders
-        glUseProgram(shader);
-        loadMatrix4ToShader(shader, "projectionViewMatrix", projectionViewMatrix);
+        shader.bind();
+        shader.loadUniform("projectionViewMatrix", projectionViewMatrix); 
 
         // Render the quads
         quad.bind();
         glBindTextureUnit(0, texture);
         for (int i = 0; i < 100; i++) {
             glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
-            loadMatrix4ToShader(shader, "modelMatrix", modelMatrix);
+            shader.loadUniform("modelMatrix", modelMatrix); 
+           
+           
             glDrawElements(GL_TRIANGLES, quad.indicesCount(), GL_UNSIGNED_INT, 0);
         }
 
         // Render the terrain
         terrain.bind();
         glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
-        loadMatrix4ToShader(shader, "modelMatrix", modelMatrix);
+        shader.loadUniform("modelMatrix", modelMatrix); 
         glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
 
         // 2. Unbind framebuffers, render to the window
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(frameBufferShader);
+        frameBufferShader.bind();
         glBindTextureUnit(0, framebuffer.colourAttachment);
 
         // Render to window
@@ -121,17 +125,6 @@ int main(void)
         // End frame
         // SDL_GL_SwapWindow(window);
     }
-
-    //=======================================
-    //          CLEAN UP
-    //=======================================
-
-    // OpenGL
-    glDeleteProgram(shader);
-    glDeleteProgram(frameBufferShader);
-
-    // Nuklear
     guiShutdown();
-
     return 0;
 }
