@@ -1,8 +1,8 @@
 #include "GUI.h"
 
+#include <SFML/System/Clock.h>
 #include <imgui/imgui.h>
 #include <imgui_impl/imgui_wrapper.h>
-#include <SFML/System/Clock.h>
 
 #include "Camera.h"
 
@@ -13,14 +13,13 @@ int fps;
 void guiInit(sf::Window& window)
 {
     ImGui_SfGl::init(window);
-    
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowRounding = 2;
-        style.FrameRounding = 0;
-        style.PopupRounding = 0;
-        style.ScrollbarRounding = 0;
-        style.TabRounding = 6;
-    
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 2;
+    style.FrameRounding = 0;
+    style.PopupRounding = 0;
+    style.ScrollbarRounding = 0;
+    style.TabRounding = 6;
 }
 
 void guiShutdown()

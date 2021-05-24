@@ -2,12 +2,12 @@
 #include <glm/glm.hpp>
 #include <stb/stb_perlin.h>
 
-static void bufferVertexData(struct VertexArray* v, const struct Vertex* vertices, GLsizei numVerticies)
+static void bufferVertexData(VertexArray* v, const std::vector<Vertex>& verts)
 {
     glCreateBuffers(1, &v->vbo);
 
     // glBufferData
-    glNamedBufferStorage(v->vbo, sizeof(struct Vertex) * numVerticies, vertices, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(v->vbo, sizeof(struct Vertex) * verts.size(), verts.data(), GL_DYNAMIC_STORAGE_BIT);
 
     // Attach the vertex array to the vertex buffer and element buffer
     glVertexArrayVertexBuffer(v->vao, 0, v->vbo, 0, sizeof(struct Vertex));
@@ -23,39 +23,37 @@ static void bufferVertexData(struct VertexArray* v, const struct Vertex* vertice
     glVertexArrayAttribBinding(v->vao, 1, 0);
 }
 
-static void bufferIndicesData(struct VertexArray* v, const GLuint* indices, GLsizei numIndices)
+static void bufferIndicesData(VertexArray* v, const std::vector<GLuint> indices)
 {
     glCreateBuffers(1, &v->ibo);
-    glNamedBufferStorage(v->ibo, sizeof(GLuint) * numIndices, indices, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(v->ibo, sizeof(GLuint) * indices.size(), indices.data(), GL_DYNAMIC_STORAGE_BIT);
     glVertexArrayElementBuffer(v->vao, v->ibo);
-    v->numIndices = numIndices;
+    v->numIndices = indices.size();
 }
 
-struct VertexArray createVertexArray(const struct Vertex* vertices, const GLuint* indices, GLsizei numVerticies,
-                                     GLsizei numIndices)
+VertexArray createVertexArray(const std::vector<Vertex>& verts, const std::vector<GLuint> indices)
 {
-    struct VertexArray v = {0};
+    struct VertexArray v;
     glCreateVertexArrays(1, &v.vao);
-    bufferVertexData(&v, vertices, numVerticies);
-    bufferIndicesData(&v, indices, numIndices);
+    bufferVertexData(&v, verts);
+    bufferIndicesData(&v, indices);
     return v;
 }
 
-struct VertexArray createEmptyVertexArray()
+VertexArray createEmptyVertexArray()
 {
-    struct VertexArray v = {0};
+    struct VertexArray v;
     glCreateVertexArrays(1, &v.vao);
     return v;
 }
+
+#define VERTS 128
+#define SIZE 50
 
 struct VertexArray createTerrainVertexArray()
 {
-    // Generate some spicy terrain
-#define VERTS 128
-#define SIZE 50
-    struct Vertex terrainVerts[VERTS * VERTS];
+    std::vector<Vertex> terrainVerts(VERTS * VERTS);
     int ptr = 0;
-
     for (int z = 0; z < VERTS; z++) {
         for (int x = 0; x < VERTS; x++) {
             float fx = (float)x;
@@ -102,7 +100,8 @@ struct VertexArray createTerrainVertexArray()
 
     int indicesCount = 0;
     ptr = 0;
-    GLuint terrainIndices[VERTS * VERTS * 10];
+    std::vector<GLuint> terrainIndices;
+    terrainIndices.reserve(VERTS * VERTS);
     for (int y = 0; y < (VERTS - 1); y += 1) {
         for (int x = 0; x < (VERTS - 1); x += 1) {
             int topLeft = (y * VERTS) + x;
@@ -110,18 +109,18 @@ struct VertexArray createTerrainVertexArray()
             int bottomLeft = ((y + 1) * VERTS) + x;
             int bottomRight = bottomLeft + 1;
 
-            terrainIndices[ptr++] = topLeft;
-            terrainIndices[ptr++] = bottomLeft;
-            terrainIndices[ptr++] = topRight;
-            terrainIndices[ptr++] = bottomLeft;
-            terrainIndices[ptr++] = bottomRight;
-            terrainIndices[ptr++] = topRight;
+            terrainIndices.push_back(topLeft);
+            terrainIndices.push_back(bottomLeft);
+            terrainIndices.push_back(topRight);
+            terrainIndices.push_back(bottomLeft);
+            terrainIndices.push_back(bottomRight);
+            terrainIndices.push_back(topRight);
 
             indicesCount += 6;
         }
     }
 
-    return CREATE_VERTEX_ARRAY(terrainVerts, terrainIndices);
+    return createVertexArray(terrainVerts, terrainIndices);
 }
 
 void destroyVertexArray(struct VertexArray* v)

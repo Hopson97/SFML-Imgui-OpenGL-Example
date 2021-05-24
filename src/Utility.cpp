@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <glad/glad.h>
 
-
 static int isColourSame(Colour a, Colour b)
 {
     return a.red == b.red && a.green == b.green && a.blue == b.blue;
@@ -35,7 +34,6 @@ static void setTerminalColour(Colour colour, enum ColourSetMode mode)
             break;
     }
 }
-
 
 char* getFileContent(const char* fileName)
 {

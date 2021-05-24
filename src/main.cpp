@@ -3,9 +3,9 @@
 #include "Graphics/GLWrappers.h"
 #include "Maths.h"
 #include "Utility.h"
+#include <SFML/GpuPreference.hpp>
 #include <SFML/Graphics.hpp>
 #include <stdbool.h>
-#include <SFML/GpuPreference.hpp>
 
 int main(void)
 {
@@ -19,18 +19,18 @@ int main(void)
 
     // Init OpenGL Objects
     // clang-format off
-    struct Vertex vertices[4] = {
+    std::vector<Vertex> vertices = {
 
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}},
         {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},
         {{ 0.5f,  0.5f, 0.0f}, {1.0f, 0.0f}},
         {{-0.5f,  0.5f, 0.0f}, {0.0f, 0.0f}},
     };
-    const GLuint indices[]  = {
+    std::vector<GLuint> indices  = {
         0, 1, 2, 2, 3, 0
     };
     // clang-format on
-    struct VertexArray quad = CREATE_VERTEX_ARRAY(vertices, indices);
+    struct VertexArray quad = createVertexArray(vertices, indices);
     struct VertexArray screen = createEmptyVertexArray();
 
     GLuint shader = loadShaders("MinVertex.glsl", "MinFragment.glsl");
@@ -114,7 +114,7 @@ int main(void)
         // Render to window
         glBindVertexArray(screen.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-         guiEndFrame();
+        guiEndFrame();
 
         window.display();
 

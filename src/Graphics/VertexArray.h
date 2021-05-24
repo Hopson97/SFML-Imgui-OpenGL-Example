@@ -2,31 +2,27 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-
-#define ARR_LENGTH(a) (sizeof(a) / sizeof(a[0]))
-#define CREATE_VERTEX_ARRAY(vertices, indices)                                                                         \
-    createVertexArray(vertices, indices, ARR_LENGTH(vertices), ARR_LENGTH(indices));
+#include <vector>
 
 struct Vertex {
-    glm::vec3 position;
-    glm::vec2 texture;
+    glm::vec3 position{0.0f};
+    glm::vec2 texture{0.0f};
 };
 
 struct Renderable {
-    GLuint vao;
-    GLuint indices;
+    GLuint vao = 0;
+    GLuint indices = 0;
 };
 
 struct VertexArray {
-    GLuint vao;
-    GLuint vbo;
-    GLuint ibo;
-    GLuint numIndices;
+    GLuint vao = 0;
+    GLuint vbo = 0;
+    GLuint ibo = 0;
+    GLuint numIndices = 0;
 };
 
-struct VertexArray createVertexArray(const struct Vertex* vertices, const GLuint* indices, GLsizei numVerticies,
-                                     GLsizei numIndices);
-struct VertexArray createTerrainVertexArray();
-struct VertexArray createEmptyVertexArray();
+VertexArray createVertexArray(const std::vector<Vertex>& verts, const std::vector<GLuint> indices);
+VertexArray createTerrainVertexArray();
+VertexArray createEmptyVertexArray();
 
-void destroyVertexArray(struct VertexArray* vertexArray);
+void destroyVertexArray(VertexArray* vertexArray);
