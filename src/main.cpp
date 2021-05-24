@@ -4,8 +4,8 @@
 #include "Maths.h"
 #include "Utility.h"
 #include <SFML/Graphics.hpp>
-#include <cute_headers/cute_sound.h>
 #include <stdbool.h>
+#include <SFML/GpuPreference.hpp>
 
 int main(void)
 {
@@ -15,7 +15,7 @@ int main(void)
     }
     glClearColor(0.5, 0.5, 0.5, 0.0);
     glViewport(0, 0, WIDTH, HEIGHT);
-    // guiInit(window);
+    guiInit(window);
 
     // Init OpenGL Objects
     // clang-format off
@@ -45,8 +45,6 @@ int main(void)
     camera.position.y = 50;
     camera.position.z = 50;
 
-    float aspect = (float)WIDTH / (float)HEIGHT;
-
     // Scene objects
     glm::vec3 modelLocations[100];
     glm::vec3 modelRotations[100];
@@ -62,31 +60,16 @@ int main(void)
     }
 
     struct VertexArray terrain = createTerrainVertexArray();
-
     // Init window
     while (window.isOpen()) {
+        guiBeginFrame();
         sf::Event event;
         while (window.pollEvent(event)) {
+            guiProcessEvent(event);
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
         }
-        // guiBeginFrame();
-        // SDL_Event event;
-        // while (SDL_PollEvent(&event)) {
-        //    guiProcessEvent(&event);
-        //    if (event.type == SDL_KEYUP) {
-        //        if (event.key.keysym.sym == SDLK_ESCAPE) {
-        //            running = false;
-        //        }
-        //    }
-        //    else if (event.type == SDL_MOUSEMOTION) {
-        //        cameraMouseInput(&camera, event.motion.xrel, event.motion.yrel);
-        //    }
-        //    else if (event.type == SDL_QUIT) {
-        //        running = false;
-        //    }
-        //}
 
         //  Input
         cameraKeyboardInput(&camera);
@@ -96,7 +79,7 @@ int main(void)
         cameraUpdate(&camera, projectionViewMatrix);
 
         // Render
-        //   guiDebugScreen(&camera);
+        guiDebugScreen(camera);
         glEnable(GL_DEPTH_TEST);
 
         // 1. Bind framebuffer target
@@ -131,11 +114,11 @@ int main(void)
         // Render to window
         glBindVertexArray(screen.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+         guiEndFrame();
 
         window.display();
 
         // End frame
-        //  guiEndFrame();
         // SDL_GL_SwapWindow(window);
     }
 
@@ -151,9 +134,7 @@ int main(void)
     glDeleteProgram(frameBufferShader);
 
     // Nuklear
-    //    guiShutdown();
-    // SDL
-    // SDL_DestroyWindow(window);
-    // SDL_Quit();
+    guiShutdown();
+
     return 0;
 }

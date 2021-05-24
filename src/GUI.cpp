@@ -1,75 +1,60 @@
 #include "GUI.h"
 
-#include <nuklear/nuklear_def.h>
-#include <nuklear/nuklear_sdl_gl3.h>
+#include <imgui/imgui.h>
+#include <imgui_impl/imgui_wrapper.h>
+#include <SFML/System/Clock.h>
 
 #include "Camera.h"
 
-#define MAX_VERTEX_MEMORY 0x80000
-#define MAX_ELEMENT_MEMORY 0x20000
-
-struct nk_context* ctx;
-int start;
+sf::Clock fpsClock;
 int frames = 0;
-int fps = 0;
+int fps;
 
-void guiInit(SDL_Window* window)
+void guiInit(sf::Window& window)
 {
-    // set_style(ctx, THEME_WHITE);
-    ctx = nk_sdl_init(window);
-    {
-        struct nk_font_atlas* atlas;
-        nk_sdl_font_stash_begin(&atlas);
-        /*struct nk_font *droid = nk_font_atlas_add_from_file(atlas,
-         * "../../../extra_font/DroidSans.ttf", 14, 0);*/
-        nk_sdl_font_stash_end();
-    }
-    nk_set_style(ctx, THEME_DARK);
-
-    start = SDL_GetTicks();
+    ImGui_SfGl::init(window);
+    
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowRounding = 2;
+        style.FrameRounding = 0;
+        style.PopupRounding = 0;
+        style.ScrollbarRounding = 0;
+        style.TabRounding = 6;
+    
 }
 
-void guiShutdown(void)
+void guiShutdown()
 {
-    nk_sdl_shutdown();
+    ImGui_SfGl::shutdown();
 }
 
-void guiBeginFrame(void)
+void guiBeginFrame()
 {
-    nk_input_begin(ctx);
+    ImGui_SfGl::startFrame();
     frames++;
-    int timeNow = SDL_GetTicks();
-    if (timeNow - start >= 1000) {
+    if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
         fps = frames;
+        fpsClock.restart();
         frames = 0;
-        start = timeNow;
     }
 }
 
-void guiProcessEvent(SDL_Event* event)
+void guiProcessEvent(sf::Event& event)
 {
-    nk_sdl_handle_event(event);
+    ImGui_ImplSfml_ProcessEvent(event);
 }
 
-void guiDebugScreen(struct Camera* c)
+void guiDebugScreen(const Camera& c)
 {
-    if (nk_begin(ctx, "Debug Window", nk_rect(0, 0, 400, 200), 0)) {
-        nk_layout_row_dynamic(ctx, 25, 1);
-        nk_labelf(ctx, NK_STATIC, "Player Position: (%f %f %f)", c->position[0], c->position[1], c->position[2]);
-
-        nk_layout_row_dynamic(ctx, 25, 1);
-        nk_labelf(ctx, NK_STATIC, "Player Rotation: (%f %f %f)", c->rotation.x, c->rotation.y, c->rotation.z);
-
-        nk_layout_row_dynamic(ctx, 25, 1);
-        nk_labelf(ctx, NK_STATIC, "Player Front: (%f %f %f)", c->front[0], c->front[1], c->front[2]);
-
-        nk_layout_row_dynamic(ctx, 25, 1);
-        nk_labelf(ctx, NK_STATIC, "FPS: %d", fps);
+    if (ImGui::Begin("Debug")) {
+        ImGui::Text("Player Position: (%f %f %f)", c.position.x, c.position.y, c.position.z);
+        ImGui::Text("Player Rotation: (%f %f %f)", c.rotation.x, c.rotation.y, c.rotation.z);
+        ImGui::Text("FPS: %d ", fps);
     }
-    nk_end(ctx);
+    ImGui::End();
 }
 
-void guiEndFrame(void)
+void guiEndFrame()
 {
-    nk_sdl_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
+    ImGui_SfGl::endFrame();
 }

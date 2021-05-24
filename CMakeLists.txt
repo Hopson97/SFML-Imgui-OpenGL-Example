@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 #Set up project
 project(
-    nukclear_sdl_gl_test 
+    sfml_imgui_opengl_ex 
     VERSION 1.0
 )
 
@@ -13,7 +13,7 @@ conan_basic_setup()
 add_executable(${PROJECT_NAME}     
     src/main.cpp
     src/Camera.cpp
- #   src/GUI.cpp
+    src/GUI.cpp
     src/Maths.cpp
     src/Utility.cpp
     src/Graphics/Framebuffer.cpp
@@ -50,7 +50,8 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME} 
     dl
 
-    cute_headers
+    imgui
+    imgui_impl
     glad 
     stb
     

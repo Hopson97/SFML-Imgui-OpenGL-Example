@@ -1,6 +1,6 @@
-# Nuklear SDL2 Example
+# Nuklear SFML OpenGL Example
 
-Example of using SDL2 with Nuklear + OpenGL.
+Example of using SFML with Nuklear + OpenGL.
 
 https://github.com/Immediate-Mode-UI/Nuklear
 

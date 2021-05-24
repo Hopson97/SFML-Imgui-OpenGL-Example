@@ -1,14 +1,14 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SFML/Window.hpp>
 
 struct Camera;
 
-void guiInit(SDL_Window* window);
-void guiShutdown(void);
+void guiInit(sf::Window& window);
+void guiShutdown();
 
-void guiBeginFrame(void);
-void guiProcessEvent(SDL_Event* event);
-void guiEndFrame(void);
+void guiBeginFrame();
+void guiProcessEvent(sf::Event& event);
+void guiEndFrame();
 
-void guiDebugScreen(struct Camera* camera);
+void guiDebugScreen(const Camera& camera);
