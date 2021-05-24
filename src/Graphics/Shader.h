@@ -6,14 +6,9 @@
 class Shader final {
   public:
     Shader() = default;
-    Shader& operator=(Shader&& other);
-    Shader(Shader&& other);
-    ~Shader();
+    Shader(const char* vertexFilename, const char* fragmentFileName);
 
-    Shader& operator=(Shader& other) = delete;
-    Shader(Shader& other) = delete;
-
-    static Shader create(const char* vertexFilename, const char* fragmentFileName);
+    void loadFromFile(const char* vertexFilename, const char* fragmentFileName);
 
     void loadUniform(const char* name, int value);
     void loadUniform(const char* name, float value);
@@ -21,11 +16,19 @@ class Shader final {
     void loadUniform(const char* name, const glm::vec4& vector);
     void loadUniform(const char* name, const glm::vec3& vector);
 
-    void bind();
+    void bind() const;
 
   private:
     GLuint getUniformLocation(const char* name);
 
     std::unordered_map<const char*, GLuint> m_uniformLocations;
     GLuint m_program = 0;
+
+  public:
+    Shader& operator=(Shader&& other);
+    Shader(Shader&& other);
+    ~Shader();
+
+    Shader& operator=(Shader& other) = delete;
+    Shader(Shader& other) = delete;
 };

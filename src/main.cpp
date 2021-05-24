@@ -30,16 +30,21 @@ int main(void)
         0, 1, 2, 2, 3, 0
     };
     // clang-format on
-    auto quad = VertexArray::create(vertices, indices);
-    auto screen = VertexArray::createEmpty();
+    VertexArray quad;
+    quad.bufferVertexData(vertices);
+    quad.bufferIndicesData(indices);
 
-    auto shader = Shader::create("MinVertex.glsl", "MinFragment.glsl");
-    auto frameBufferShader = Shader::create("FramebufferVertex.glsl", "FramebufferFragment.glsl");
+    VertexArray screen;
 
+    Shader shader("MinVertex.glsl", "MinFragment.glsl");
+    Shader frameBufferShader("FramebufferVertex.glsl", "FramebufferFragment.glsl");
 
-    GLuint texture = loadTexture("opengl_logo.png");
+    Texture2d texture;
+    texture.loadTexture("opengl_logo.png");
 
-    struct Framebuffer framebuffer = createFramebuffer(WIDTH, HEIGHT);
+    Framebuffer framebuffer(WIDTH, HEIGHT);
+    auto colour = framebuffer.addTexture();
+    framebuffer.finish();
 
     // Init scene
     struct Camera camera = createCamera();
@@ -61,7 +66,7 @@ int main(void)
         modelRotations[i].z = rand() % 360;
     }
 
-    auto terrain = VertexArray::createTerrain();
+    // auto terrain = VertexArray::createTerrain();
     // Init window
     while (window.isOpen()) {
         guiBeginFrame();
@@ -85,35 +90,33 @@ int main(void)
         glEnable(GL_DEPTH_TEST);
 
         // 1. Bind framebuffer target
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fbo);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        framebuffer.bind();
 
         // Use the scene shaders
         shader.bind();
-        shader.loadUniform("projectionViewMatrix", projectionViewMatrix); 
+        shader.loadUniform("projectionViewMatrix", projectionViewMatrix);
 
         // Render the quads
         quad.bind();
-        glBindTextureUnit(0, texture);
+        texture.bind();
         for (int i = 0; i < 100; i++) {
             glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
-            shader.loadUniform("modelMatrix", modelMatrix); 
-           
-           
+            shader.loadUniform("modelMatrix", modelMatrix);
+
             glDrawElements(GL_TRIANGLES, quad.indicesCount(), GL_UNSIGNED_INT, 0);
         }
 
         // Render the terrain
-        terrain.bind();
-        glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
-        shader.loadUniform("modelMatrix", modelMatrix); 
-        glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
+        // terrain.bind();
+        // glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
+        // shader.loadUniform("modelMatrix", modelMatrix);
+        // glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
 
         // 2. Unbind framebuffers, render to the window
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         frameBufferShader.bind();
-        glBindTextureUnit(0, framebuffer.colourAttachment);
+        colour->bind();
 
         // Render to window
         screen.bind();

@@ -17,7 +17,6 @@ add_executable(${PROJECT_NAME}
     src/Maths.cpp
     src/Utility.cpp
     src/Graphics/Framebuffer.cpp
-    src/Graphics/GLDebug.cpp
     src/Graphics/Shader.cpp
     src/Graphics/Texture.cpp
     src/Graphics/VertexArray.cpp

@@ -17,27 +17,27 @@ struct Renderable {
 class VertexArray final {
   public:
     VertexArray();
-    VertexArray& operator=(VertexArray&& other);
-    VertexArray(VertexArray&& other);
-    ~VertexArray();
 
-    VertexArray& operator=(VertexArray& other) = delete;
-    VertexArray(VertexArray& other) = delete;
-
-    static VertexArray create(const std::vector<Vertex>& verts, const std::vector<GLuint> indices);
     static VertexArray createTerrain();
-    static VertexArray createEmpty();
 
     void bufferVertexData(const std::vector<Vertex>& verts);
     void bufferIndicesData(const std::vector<GLuint> indices);
 
     GLsizei indicesCount();
 
-    void bind();
+    void bind() const;
 
   private:
-    GLuint m_vao;
-    GLuint m_vbo;
-    GLuint m_ibo;
-    GLuint m_indexCount;
+    GLuint m_vao = 0;
+    GLuint m_vbo = 0;
+    GLuint m_ibo = 0;
+    GLuint m_indexCount = 0;
+
+  public:
+    VertexArray& operator=(VertexArray&& other);
+    VertexArray(VertexArray&& other);
+    ~VertexArray();
+
+    VertexArray& operator=(VertexArray& other) = delete;
+    VertexArray(VertexArray& other) = delete;
 };

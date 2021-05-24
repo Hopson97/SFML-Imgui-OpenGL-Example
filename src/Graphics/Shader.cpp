@@ -67,7 +67,7 @@ Shader::~Shader()
     }
 }
 
-Shader Shader::create(const char* vertexFilename, const char* fragmentFileName)
+Shader::Shader(const char* vertexFilename, const char* fragmentFileName)
 {
 
     char vertfullFileName[128] = "Data/Shaders/";
@@ -85,29 +85,26 @@ Shader Shader::create(const char* vertexFilename, const char* fragmentFileName)
         exit(1);
     }
 
-    Shader shader;
-    shader.m_program = glCreateProgram();
-    glAttachShader(shader.m_program, vertexShader);
-    glAttachShader(shader.m_program, fragmentShader);
-    glLinkProgram(shader.m_program);
+    m_program = glCreateProgram();
+    glAttachShader(m_program, vertexShader);
+    glAttachShader(m_program, fragmentShader);
+    glLinkProgram(m_program);
 
-    glBindAttribLocation(shader.m_program, 0, "inPosition");
+    glBindAttribLocation(m_program, 0, "inPosition");
 
     GLint status;
-    glGetProgramiv(shader.m_program, GL_LINK_STATUS, &status);
+    glGetProgramiv(m_program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE) {
         char buff[1024];
-        glGetShaderInfoLog(shader.m_program, 1024, NULL, buff);
+        glGetShaderInfoLog(m_program, 1024, NULL, buff);
         fprintf(stderr, "Failed to link shader programs: %s\n", buff);
         exit(1);
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
-    return shader;
 }
 
-void Shader::bind()
+void Shader::bind() const
 {
     assert(m_program != 0);
     glUseProgram(m_program);

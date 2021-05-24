@@ -45,23 +45,10 @@ VertexArray::~VertexArray()
     }
 }
 
-VertexArray VertexArray::create(const std::vector<Vertex>& verts, const std::vector<GLuint> indices)
-{
-    VertexArray v;
-    v.bufferVertexData(verts);
-    v.bufferIndicesData(indices);
-    return v;
-}
-
-VertexArray VertexArray::createEmpty()
-{
-    VertexArray v;
-    return v;
-}
-
 #define VERTS 128
 #define SIZE 50
 
+/*
 struct VertexArray VertexArray::createTerrain()
 {
     std::vector<Vertex> terrainVerts(VERTS * VERTS);
@@ -133,7 +120,7 @@ struct VertexArray VertexArray::createTerrain()
     }
 
     return create(terrainVerts, terrainIndices);
-}
+}*/
 
 void VertexArray::bufferVertexData(const std::vector<Vertex>& verts)
 {
@@ -166,7 +153,7 @@ GLsizei VertexArray::indicesCount()
     return m_indexCount;
 }
 
-void VertexArray::bind()
+void VertexArray::bind() const
 {
     glBindVertexArray(m_vao);
 }
