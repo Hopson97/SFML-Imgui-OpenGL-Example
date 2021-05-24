@@ -10,6 +10,7 @@
 int main(void)
 {
     sf::Window window;
+    window.setMouseCursorGrabbed(true);
     if (!initWindow(&window)) {
         return 1;
     }
@@ -47,16 +48,16 @@ int main(void)
     framebuffer.finish();
 
     // Init scene
-    struct Camera camera = createCamera();
-    camera.position.x = 50;
-    camera.position.y = 50;
-    camera.position.z = 50;
+    Camera camera;
+    camera.transform.position.x = 50;
+    camera.transform.position.y = 50;
+    camera.transform.position.z = 50;
 
     // Scene objects
-    glm::vec3 modelLocations[100];
-    glm::vec3 modelRotations[100];
+    glm::vec3 modelLocations[10000];
+    glm::vec3 modelRotations[10000];
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
         modelLocations[i].x = rand() % 75;
         modelLocations[i].y = rand() % 75;
         modelLocations[i].z = rand() % 75;
@@ -69,6 +70,7 @@ int main(void)
     // auto terrain = VertexArray::createTerrain();
     // Init window
     while (window.isOpen()) {
+
         guiBeginFrame();
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -76,14 +78,17 @@ int main(void)
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
+            else if (event.type == sf::Event::MouseMoved) {
+                camera.mouseInput(event.mouseMove.x, event.mouseMove.y);
+            }
         }
 
         //  Input
-        cameraKeyboardInput(&camera);
+        camera.keyboardInput();
+        camera.update();
 
         // Update
-        glm::mat4 projectionViewMatrix{1.0f};
-        cameraUpdate(&camera, projectionViewMatrix);
+        glm::mat4 projectionViewMatrix = camera.update();
 
         // Render
         guiDebugScreen(camera);
@@ -99,7 +104,7 @@ int main(void)
         // Render the quads
         quad.bind();
         texture.bind();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
             shader.loadUniform("modelMatrix", modelMatrix);
 

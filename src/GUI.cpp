@@ -45,9 +45,11 @@ void guiProcessEvent(sf::Event& event)
 
 void guiDebugScreen(const Camera& c)
 {
+    const Transform& t = c.transform;
+
     if (ImGui::Begin("Debug")) {
-        ImGui::Text("Player Position: (%f %f %f)", c.position.x, c.position.y, c.position.z);
-        ImGui::Text("Player Rotation: (%f %f %f)", c.rotation.x, c.rotation.y, c.rotation.z);
+        ImGui::Text("Player Position: (%f %f %f)", t.position.x, t.position.y, t.position.z);
+        ImGui::Text("Player Rotation: (%f %f %f)", t.rotation.x, t.rotation.y, t.rotation.z);
         ImGui::Text("FPS: %d ", fps);
     }
     ImGui::End();
