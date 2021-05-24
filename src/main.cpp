@@ -30,8 +30,8 @@ int main(void)
         0, 1, 2, 2, 3, 0
     };
     // clang-format on
-    struct VertexArray quad = createVertexArray(vertices, indices);
-    struct VertexArray screen = createEmptyVertexArray();
+    auto quad = VertexArray::create(vertices, indices);
+    auto screen = VertexArray::createEmpty();
 
     GLuint shader = loadShaders("MinVertex.glsl", "MinFragment.glsl");
     GLuint frameBufferShader = loadShaders("FramebufferVertex.glsl", "FramebufferFragment.glsl");
@@ -59,7 +59,7 @@ int main(void)
         modelRotations[i].z = rand() % 360;
     }
 
-    struct VertexArray terrain = createTerrainVertexArray();
+    auto terrain = VertexArray::createTerrain();
     // Init window
     while (window.isOpen()) {
         guiBeginFrame();
@@ -91,19 +91,19 @@ int main(void)
         loadMatrix4ToShader(shader, "projectionViewMatrix", projectionViewMatrix);
 
         // Render the quads
-        glBindVertexArray(quad.vao);
+        quad.bind();
         glBindTextureUnit(0, texture);
         for (int i = 0; i < 100; i++) {
             glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
             loadMatrix4ToShader(shader, "modelMatrix", modelMatrix);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, quad.indicesCount(), GL_UNSIGNED_INT, 0);
         }
 
         // Render the terrain
-        glBindVertexArray(terrain.vao);
+        terrain.bind();
         glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
         loadMatrix4ToShader(shader, "modelMatrix", modelMatrix);
-        glDrawElements(GL_TRIANGLES, terrain.numIndices, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
 
         // 2. Unbind framebuffers, render to the window
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -112,7 +112,7 @@ int main(void)
         glBindTextureUnit(0, framebuffer.colourAttachment);
 
         // Render to window
-        glBindVertexArray(screen.vao);
+        screen.bind();
         glDrawArrays(GL_TRIANGLES, 0, 6);
         guiEndFrame();
 
@@ -125,9 +125,6 @@ int main(void)
     //=======================================
     //          CLEAN UP
     //=======================================
-    destroyVertexArray(&quad);
-    destroyVertexArray(&terrain);
-    destroyVertexArray(&screen);
 
     // OpenGL
     glDeleteProgram(shader);

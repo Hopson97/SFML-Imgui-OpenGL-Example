@@ -2,55 +2,67 @@
 #include <glm/glm.hpp>
 #include <stb/stb_perlin.h>
 
-static void bufferVertexData(VertexArray* v, const std::vector<Vertex>& verts)
+VertexArray::VertexArray()
 {
-    glCreateBuffers(1, &v->vbo);
-
-    // glBufferData
-    glNamedBufferStorage(v->vbo, sizeof(struct Vertex) * verts.size(), verts.data(), GL_DYNAMIC_STORAGE_BIT);
-
-    // Attach the vertex array to the vertex buffer and element buffer
-    glVertexArrayVertexBuffer(v->vao, 0, v->vbo, 0, sizeof(struct Vertex));
-
-    // glEnableVertexAttribArray
-    glEnableVertexArrayAttrib(v->vao, 0);
-    glEnableVertexArrayAttrib(v->vao, 1);
-
-    // glVertexAttribPointer
-    glVertexArrayAttribFormat(v->vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
-    glVertexArrayAttribFormat(v->vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, texture));
-    glVertexArrayAttribBinding(v->vao, 0, 0);
-    glVertexArrayAttribBinding(v->vao, 1, 0);
+    glGenVertexArrays(1, &m_vao);
 }
 
-static void bufferIndicesData(VertexArray* v, const std::vector<GLuint> indices)
+VertexArray& VertexArray::operator=(VertexArray&& other)
 {
-    glCreateBuffers(1, &v->ibo);
-    glNamedBufferStorage(v->ibo, sizeof(GLuint) * indices.size(), indices.data(), GL_DYNAMIC_STORAGE_BIT);
-    glVertexArrayElementBuffer(v->vao, v->ibo);
-    v->numIndices = indices.size();
+    m_vao = other.m_vao;
+    m_vbo = other.m_vbo;
+    m_ibo = other.m_ibo;
+    m_indexCount = other.m_indexCount;
+
+    other.m_vao = 0;
+    other.m_vbo = 0;
+    other.m_ibo = 0;
+    other.m_indexCount = 0;
+
+    return *this;
 }
 
-VertexArray createVertexArray(const std::vector<Vertex>& verts, const std::vector<GLuint> indices)
+VertexArray::VertexArray(VertexArray&& other)
+    : m_vao{other.m_vao}
+    , m_vbo{other.m_vbo}
+    , m_ibo{other.m_ibo}
+    , m_indexCount{other.m_indexCount}
 {
-    struct VertexArray v;
-    glCreateVertexArrays(1, &v.vao);
-    bufferVertexData(&v, verts);
-    bufferIndicesData(&v, indices);
+    other.m_vao = 0;
+    other.m_vbo = 0;
+    other.m_ibo = 0;
+    other.m_indexCount = 0;
+}
+
+VertexArray::~VertexArray()
+{
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteBuffers(1, &m_ibo);
+    }
+}
+
+VertexArray VertexArray::create(const std::vector<Vertex>& verts, const std::vector<GLuint> indices)
+{
+    VertexArray v;
+    glCreateVertexArrays(1, &v.m_vao);
+    v.bufferVertexData(verts);
+    v.bufferIndicesData(indices);
     return v;
 }
 
-VertexArray createEmptyVertexArray()
+VertexArray VertexArray::createEmpty()
 {
-    struct VertexArray v;
-    glCreateVertexArrays(1, &v.vao);
+    VertexArray v;
+    glCreateVertexArrays(1, &v.m_vao);
     return v;
 }
 
 #define VERTS 128
 #define SIZE 50
 
-struct VertexArray createTerrainVertexArray()
+struct VertexArray VertexArray::createTerrain()
 {
     std::vector<Vertex> terrainVerts(VERTS * VERTS);
     int ptr = 0;
@@ -120,13 +132,44 @@ struct VertexArray createTerrainVertexArray()
         }
     }
 
-    return createVertexArray(terrainVerts, terrainIndices);
+    return create(terrainVerts, terrainIndices);
 }
 
-void destroyVertexArray(struct VertexArray* v)
+void VertexArray::bufferVertexData(const std::vector<Vertex>& verts)
 {
-    glDeleteBuffers(1, &v->ibo);
-    glDeleteBuffers(1, &v->vbo);
-    glDeleteVertexArrays(1, &v->vao);
-    v->numIndices = 0;
+    glCreateBuffers(1, &m_vbo);
+
+    // glBufferData
+    glNamedBufferStorage(m_vbo, sizeof(struct Vertex) * verts.size(), verts.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    // Attach the vertex array to the vertex buffer and element buffer
+    glVertexArrayVertexBuffer(m_vao, 0, m_vbo, 0, sizeof(struct Vertex));
+
+    // glEnableVertexAttribArray
+    glEnableVertexArrayAttrib(m_vao, 0);
+    glEnableVertexArrayAttrib(m_vao, 1);
+
+    // glVertexAttribPointer
+    glVertexArrayAttribFormat(m_vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
+    glVertexArrayAttribFormat(m_vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, texture));
+    glVertexArrayAttribBinding(m_vao, 0, 0);
+    glVertexArrayAttribBinding(m_vao, 1, 0);
+}
+
+void VertexArray::bufferIndicesData(const std::vector<GLuint> indices)
+{
+    glCreateBuffers(1, &m_ibo);
+    glNamedBufferStorage(m_ibo, sizeof(GLuint) * indices.size(), indices.data(), GL_DYNAMIC_STORAGE_BIT);
+    glVertexArrayElementBuffer(m_vao, m_ibo);
+    m_indexCount = indices.size();
+}
+
+GLsizei VertexArray::indicesCount()
+{
+    return m_indexCount;
+}
+
+void VertexArray::bind()
+{
+    glBindVertexArray(m_vao);
 }
