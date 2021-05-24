@@ -6,16 +6,13 @@
 #define WIDTH 1600
 #define HEIGHT 900
 
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
 char* getFileContent(const char* fileName);
 
 // Colour Util
 struct Colour {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    uint8_t red = 255;
+    uint8_t green = 255;
+    uint8_t blue = 255;
 };
 
 enum ColourSetMode {
@@ -23,8 +20,8 @@ enum ColourSetMode {
     COL_SET_FG = 38,
 };
 
-void setTerminalBackgroundColour(struct Colour colour);
-void setTerminalTextColour(struct Colour colour);
+void setTerminalBackgroundColour(Colour colour);
+void setTerminalTextColour(Colour colour);
 
 void setBackgroundColourRGB(uint8_t red, uint8_t green, uint8_t blue);
 void setTextColourRGB(uint8_t red, uint8_t green, uint8_t blue);

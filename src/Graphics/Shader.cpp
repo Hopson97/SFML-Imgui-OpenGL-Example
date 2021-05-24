@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char* getShaderString(GLenum shaderType)
+static const char* getShaderString(GLenum shaderType)
 {
     if (shaderType == GL_VERTEX_SHADER) {
         return "Vertex Shader";

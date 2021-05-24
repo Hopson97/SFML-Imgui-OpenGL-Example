@@ -4,31 +4,13 @@
 #include <cstdlib>
 #include <glad/glad.h>
 
-char* getFileContent(const char* fileName)
-{
-    char* buffer = NULL;
-    long length = 0;
-    FILE* file = fopen(fileName, "r");
 
-    if (file) {
-        fseek(file, 0, SEEK_END);
-        length = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        buffer = (char*)calloc(length + 1, 1);
-        if (buffer) {
-            fread(buffer, 1, length, file);
-        }
-        fclose(file);
-    }
-    return buffer;
-}
-
-static int isColourSame(struct Colour a, struct Colour b)
+static int isColourSame(Colour a, Colour b)
 {
     return a.red == b.red && a.green == b.green && a.blue == b.blue;
 }
 
-static void setTerminalColour(struct Colour colour, enum ColourSetMode mode)
+static void setTerminalColour(Colour colour, enum ColourSetMode mode)
 {
     static int isFirstTimeBG = 1;
     static int isFirstTimeFG = 1;
@@ -54,12 +36,32 @@ static void setTerminalColour(struct Colour colour, enum ColourSetMode mode)
     }
 }
 
-void setBackgroundColour(struct Colour colour)
+
+char* getFileContent(const char* fileName)
+{
+    char* buffer = NULL;
+    long length = 0;
+    FILE* file = fopen(fileName, "r");
+
+    if (file) {
+        fseek(file, 0, SEEK_END);
+        length = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        buffer = (char*)calloc(length + 1, 1);
+        if (buffer) {
+            fread(buffer, 1, length, file);
+        }
+        fclose(file);
+    }
+    return buffer;
+}
+
+void setBackgroundColour(Colour colour)
 {
     setTerminalColour(colour, COL_SET_BG);
 }
 
-void setTextColour(struct Colour colour)
+void setTextColour(Colour colour)
 {
     setTerminalColour(colour, COL_SET_FG);
 }
@@ -67,9 +69,9 @@ void setTextColour(struct Colour colour)
 void setTextColourRGB(uint8_t red, uint8_t green, uint8_t blue)
 {
     struct Colour colour = {
-        .red = red,
-        .green = green,
-        .blue = blue,
+        red,
+        green,
+        blue,
     };
     setTerminalColour(colour, COL_SET_FG);
 }
@@ -77,9 +79,9 @@ void setTextColourRGB(uint8_t red, uint8_t green, uint8_t blue)
 void setBackgroundColourRGB(uint8_t red, uint8_t green, uint8_t blue)
 {
     struct Colour colour = {
-        .red = red,
-        .green = green,
-        .blue = blue,
+        red,
+        green,
+        blue,
     };
     setTerminalColour(colour, COL_SET_BG);
 }
@@ -103,44 +105,3 @@ bool initWindow(sf::Window* window)
     initGLDebug();
     return true;
 }
-/*
-SDL_Window* initWindow()
-{
-
-    //=======================================
-    //          SDL SET UP SECTION
-    //=======================================
-    SDL_Init(SDL_INIT_EVERYTHING);
-
-    // Set up SDL to work with OpenGL (https://wiki.libsdl.org/SDL_GLattr)
-    // Enable hardware acceleration
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    // Set rendering parmeters
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-
-    SDL_Window* window = SDL_CreateWindow("OpenGL Nuklear Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                          WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-
-    SDL_GL_CreateContext(window);
-    if (!gladLoadGL()) {
-        printf("Error: Could not load OpenGL.");
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return NULL;
-    }
-    initGLDebug();
-    return window;
-}
-*/
