@@ -77,7 +77,7 @@ int main(void)
                 }
             }
         }
-                camera.mouseInput(window);
+        camera.mouseInput(window);
 
         //  Input
         camera.keyboardInput();

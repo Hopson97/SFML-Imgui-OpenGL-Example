@@ -50,11 +50,9 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME} 
     dl
 
-    imgui
-    imgui_impl
     glad 
     stb
-    
+    nuklear
     ${CMAKE_DL_LIBS}
     ${CONAN_LIBS}
 )
