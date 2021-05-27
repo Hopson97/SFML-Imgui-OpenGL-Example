@@ -1,11 +1,11 @@
 #include "Camera.h"
 #include "GUI.h"
 #include "Graphics/GLWrappers.h"
+#include "Graphics/Mesh.h"
 #include "Maths.h"
 #include "Utility.h"
 #include <SFML/GpuPreference.hpp>
 #include <SFML/Graphics.hpp>
-#include <stdbool.h>
 
 int main(void)
 {
@@ -20,20 +20,11 @@ int main(void)
 
     // Init OpenGL Objects
     // clang-format off
-    std::vector<Vertex> vertices = {
 
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}},
-        {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},
-        {{ 0.5f,  0.5f, 0.0f}, {1.0f, 0.0f}},
-        {{-0.5f,  0.5f, 0.0f}, {0.0f, 0.0f}},
-    };
-    std::vector<GLuint> indices  = {
-        0, 1, 2, 2, 3, 0
-    };
     // clang-format on
+    auto quadMesh = createQuadMesh();
     VertexArray quad;
-    quad.bufferVertexData(vertices);
-    quad.bufferIndicesData(indices);
+    quad.bufferMesh(quadMesh);
 
     VertexArray screen;
 
@@ -54,10 +45,10 @@ int main(void)
     camera.transform.position.z = 50;
 
     // Scene objects
-    glm::vec3 modelLocations[10000];
-    glm::vec3 modelRotations[10000];
+    glm::vec3 modelLocations[128];
+    glm::vec3 modelRotations[128];
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 128; i++) {
         modelLocations[i].x = rand() % 75;
         modelLocations[i].y = rand() % 75;
         modelLocations[i].z = rand() % 75;
@@ -67,10 +58,12 @@ int main(void)
         modelRotations[i].z = rand() % 360;
     }
 
-    // auto terrain = VertexArray::createTerrain();
+    auto terrainMesh = createTerrainMesh();
+    VertexArray terrain;
+    terrain.bufferMesh(terrainMesh);
+
     // Init window
     while (window.isOpen()) {
-
         guiBeginFrame();
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -78,10 +71,13 @@ int main(void)
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            else if (event.type == sf::Event::MouseMoved) {
-                camera.mouseInput(event.mouseMove.x, event.mouseMove.y);
+            else if (event.type == sf::Event::KeyReleased) {
+                if (event.key.code == sf::Keyboard::Escape) {
+                    window.close();
+                }
             }
         }
+                camera.mouseInput(window);
 
         //  Input
         camera.keyboardInput();
@@ -104,7 +100,7 @@ int main(void)
         // Render the quads
         quad.bind();
         texture.bind();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 128; i++) {
             glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
             shader.loadUniform("modelMatrix", modelMatrix);
 
@@ -112,10 +108,10 @@ int main(void)
         }
 
         // Render the terrain
-        // terrain.bind();
-        // glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
-        // shader.loadUniform("modelMatrix", modelMatrix);
-        // glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
+        terrain.bind();
+        glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
+        shader.loadUniform("modelMatrix", modelMatrix);
+        glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
 
         // 2. Unbind framebuffers, render to the window
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

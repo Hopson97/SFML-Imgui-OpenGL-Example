@@ -2,6 +2,8 @@
 
 #include "Maths.h"
 
+#include <SFML/Window.hpp>
+
 struct Transform {
     glm::vec3 position{0.0f};
     glm::vec3 rotation{0.0f};
@@ -11,7 +13,7 @@ class Camera {
   public:
     Camera();
 
-    void mouseInput(int xOffset, int yOffset);
+    void mouseInput(const sf::Window& window);
     void keyboardInput();
 
     glm::mat4 update();

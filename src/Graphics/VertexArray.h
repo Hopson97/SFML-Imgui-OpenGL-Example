@@ -1,13 +1,9 @@
 #pragma once
 
+#include "Mesh.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
-
-struct Vertex {
-    glm::vec3 position{0.0f};
-    glm::vec2 texture{0.0f};
-};
 
 struct Renderable {
     GLuint vao = 0;
@@ -18,16 +14,15 @@ class VertexArray final {
   public:
     VertexArray();
 
-    static VertexArray createTerrain();
-
-    void bufferVertexData(const std::vector<Vertex>& verts);
-    void bufferIndicesData(const std::vector<GLuint> indices);
+    void bufferMesh(const Mesh& mesh);
+    void bind() const;
 
     GLsizei indicesCount();
 
-    void bind() const;
-
   private:
+    void bufferVertexData(const std::vector<Vertex>& verts);
+    void bufferIndicesData(const std::vector<GLuint> indices);
+
     GLuint m_vao = 0;
     GLuint m_vbo = 0;
     GLuint m_ibo = 0;

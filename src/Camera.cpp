@@ -12,15 +12,17 @@ Camera::Camera()
     m_up.y = 1.0f;
 }
 
-void Camera::mouseInput(int xOffset, int yOffset)
+void Camera::mouseInput(const sf::Window& window)
 {
     static sf::Vector2i m_lastMousePosition;
-    sf::Vector2i change = sf::Vector2i(xOffset, yOffset) - m_lastMousePosition;
-    transform.rotation.x -= static_cast<float>(change.y / 4.0f);
-    transform.rotation.y += static_cast<float>(change.x / 4.0f);
-    m_lastMousePosition = {xOffset, yOffset};
+    sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
+    transform.rotation.x -= static_cast<float>(change.y / 8.0f);
+    transform.rotation.y += static_cast<float>(change.x / 8.0f);
+    sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2}, window);
+    m_lastMousePosition = sf::Mouse::getPosition(window);
 
     transform.rotation.x = glm::clamp(transform.rotation.x, -89.9f, 89.9f);
+    transform.rotation.y = (int)transform.rotation.y % 360;
 }
 
 void Camera::keyboardInput()
