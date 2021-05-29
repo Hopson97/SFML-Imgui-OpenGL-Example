@@ -22,3 +22,5 @@ Release/
 *.srctrlbm
 
 imgui.ini
+
+build/

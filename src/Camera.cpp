@@ -44,18 +44,6 @@ void Camera::keyboardInput()
 
 glm::mat4 Camera::update()
 {
-    // View Matrix
-    glm::vec3 center;
-
-    m_front.x = cos(glm::radians(transform.rotation.y)) * cos(glm::radians(transform.rotation.x));
-    m_front.y = sin(glm::radians(transform.rotation.x));
-    m_front.z = sin(glm::radians(transform.rotation.y)) * cos(glm::radians(transform.rotation.x));
-    m_front = glm::normalize(m_front);
-
-    center = transform.position + m_front;
-
-    glm::mat4 viewMatrix = glm::lookAt(transform.position, center, m_up);
-
-    // Calculate projection view matrix and then upload
+    glm::mat4 viewMatrix = createViewMartix(transform, m_up);
     return m_projectionMatrix * viewMatrix;
 }

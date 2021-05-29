@@ -6,6 +6,7 @@
 #include "Utility.h"
 #include <SFML/GpuPreference.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
 
 int main(void)
 {
@@ -45,22 +46,20 @@ int main(void)
     camera.transform.position.z = 50;
 
     // Scene objects
-    glm::vec3 modelLocations[128];
-    glm::vec3 modelRotations[128];
+    Transform modelTransforms[128];
 
     for (int i = 0; i < 128; i++) {
-        modelLocations[i].x = rand() % 75;
-        modelLocations[i].y = rand() % 75;
-        modelLocations[i].z = rand() % 75;
+        modelTransforms[i].position.x = rand() % 75;
+        modelTransforms[i].position.y = rand() % 75;
+        modelTransforms[i].position.z = rand() % 75;
 
-        modelRotations[i].x = rand() % 360;
-        modelRotations[i].y = rand() % 360;
-        modelRotations[i].z = rand() % 360;
+        modelTransforms[i].rotation.x = rand() % 360;
+        modelTransforms[i].rotation.y = rand() % 360;
+        modelTransforms[i].rotation.z = rand() % 360;
     }
 
-    auto terrainMesh = createTerrainMesh();
-    VertexArray terrain;
-    terrain.bufferMesh(terrainMesh);
+    // JFF
+    sf::Clock sinTimer;
 
     // Init window
     while (window.isOpen()) {
@@ -101,17 +100,13 @@ int main(void)
         quad.bind();
         texture.bind();
         for (int i = 0; i < 128; i++) {
-            glm::mat4 modelMatrix = createModelMatrix(modelLocations[i], modelRotations[i]);
+            modelTransforms[i].position += glm::sin(sinTimer.getElapsedTime().asSeconds()) / 128;
+            modelTransforms[i].rotation += 1.0f;
+            glm::mat4 modelMatrix = createModelMatrix(modelTransforms[i]);
             shader.loadUniform("modelMatrix", modelMatrix);
 
             glDrawElements(GL_TRIANGLES, quad.indicesCount(), GL_UNSIGNED_INT, 0);
         }
-
-        // Render the terrain
-        terrain.bind();
-        glm::mat4 modelMatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
-        shader.loadUniform("modelMatrix", modelMatrix);
-        glDrawElements(GL_TRIANGLES, terrain.indicesCount(), GL_UNSIGNED_INT, 0);
 
         // 2. Unbind framebuffers, render to the window
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

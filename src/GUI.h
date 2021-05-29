@@ -2,7 +2,7 @@
 
 #include <SFML/Window.hpp>
 
-struct Camera;
+class Camera;
 
 void guiInit(sf::Window& window);
 void guiShutdown();

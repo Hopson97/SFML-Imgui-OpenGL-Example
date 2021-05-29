@@ -19,6 +19,5 @@ struct Mesh {
     GLsizei indicesCount = 0;
 };
 
-Mesh createTerrainMesh();
 Mesh createQuadMesh();
 Mesh createCubeMesh();

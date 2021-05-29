@@ -4,8 +4,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-glm::mat4 createModelMatrix(const glm::vec3& pos, const glm::vec3& rot);
-glm::mat4 createViewMartix(const glm::vec3& pos, const glm::vec3& rot);
+struct Transform {
+    glm::vec3 position{0.0f};
+    glm::vec3 rotation{0.0f};
+};
+
+glm::mat4 createModelMatrix(const Transform& transform);
+glm::mat4 createViewMartix(const Transform& transform, const glm::vec3& up);
 glm::mat4 createProjectionMatrix(float aspectRatio, float fov);
 
 glm::vec3 forwardsVector(const glm::vec3& rotation);

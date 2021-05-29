@@ -31,7 +31,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #Set flags
 if(MSVC)
   	target_compile_options(${PROJECT_NAME} PRIVATE 
-    	/W4 /WX)
+    	/W4)
 else()
   	target_compile_options(${PROJECT_NAME} PRIVATE 
 		-Wall -Wextra -pedantic -fPIE)		
@@ -46,13 +46,17 @@ target_include_directories(
     deps
 )
 
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} 
+        dl
+        ${CMAKE_DL_LIBS}
+    )
+endif (UNIX)
+
 #Finally
 target_link_libraries(${PROJECT_NAME} 
-    dl
-
     glad 
     stb
     nuklear
-    ${CMAKE_DL_LIBS}
     ${CONAN_LIBS}
 )
